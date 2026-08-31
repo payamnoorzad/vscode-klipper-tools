@@ -2,7 +2,7 @@
   "name": "klipper-tools",
   "displayName": "Klipper Tools (IntelliSense & Analyzer)",
   "description": "Smart IntelliSense, diagnostics, macro navigation, and analyzer for Klipper 3D printer configs",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "payamnoorzad",
   "icon": "icon.png",
   "author": {
