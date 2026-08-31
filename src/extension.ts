@@ -129,6 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
               `✅ Connected to Klipper! State: ${state.state.toUpperCase()}`
             );
             remoteTreeProvider.refresh();
+            projectTreeProvider.refresh();
           } catch (err: any) {
             vscode.window.showErrorMessage(
               `❌ Failed to connect to Klipper: ${err.message}`
@@ -143,8 +144,9 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('klipper.disconnect', () => {
       moonraker.disconnect();
-      vscode.window.showInformationMessage('Disconnected from Klipper.');
+      vscode.window.showInformationMessage('🔌 Disconnected from Klipper.');
       remoteTreeProvider.refresh();
+      projectTreeProvider.refresh();
     })
   );
 
@@ -367,28 +369,92 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const confirm = await vscode.window.showWarningMessage(
-        '🧹 Are you sure you want to clear all downloaded config files from the current workspace?',
+        '🧹 Are you sure you want to clear all downloaded Klipper config files (.cfg, .conf) from the current workspace?',
         { modal: true },
-        'Clear Workspace'
+        'Clear Configs'
       );
-      if (confirm !== 'Clear Workspace') {
+      if (confirm !== 'Clear Configs') {
         return;
       }
 
       const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
-      try {
-        const files = fs.readdirSync(rootPath);
-        for (const file of files) {
-          const fullPath = path.join(rootPath, file);
-          const stat = fs.statSync(fullPath);
-          if (stat.isDirectory()) {
-            fs.rmSync(fullPath, { recursive: true, force: true });
-          } else if (file.endsWith('.cfg') || file.endsWith('.conf')) {
-            fs.unlinkSync(fullPath);
+      const PROTECTED_NAMES = new Set([
+        '.git',
+        '.vscode',
+        'node_modules',
+        'src',
+        'dist',
+        'out',
+        'syntaxes',
+        '.gitignore',
+        '.vscodeignore',
+        'package.json',
+        'package-lock.json',
+        'tsconfig.json',
+        'esbuild.js',
+        'README.md',
+        'LICENSE',
+        'icon.png',
+      ]);
+
+      let clearedCount = 0;
+
+      function removeKlipperFiles(dirPath: string, isRoot: boolean = false): void {
+        try {
+          const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+          for (const entry of entries) {
+            const fullPath = path.join(dirPath, entry.name);
+            const lowerName = entry.name.toLowerCase();
+
+            // Skip protected files and folders
+            if (isRoot && PROTECTED_NAMES.has(entry.name)) {
+              continue;
+            }
+
+            if (entry.isDirectory()) {
+              if (entry.name === '.klipper_remote' || entry.name === 'ToolsChange' || entry.name === 'Z_Switch' || entry.name === 'Extras' || entry.name === 'Test_Machine') {
+                try {
+                  fs.rmSync(fullPath, { recursive: true, force: true });
+                  clearedCount++;
+                } catch {
+                  // Ignore locked subfolder
+                }
+              } else {
+                removeKlipperFiles(fullPath, false);
+                // If directory is now empty and not root/protected, clean it up
+                try {
+                  const remaining = fs.readdirSync(fullPath);
+                  if (remaining.length === 0) {
+                    fs.rmdirSync(fullPath);
+                  }
+                } catch {}
+              }
+            } else if (entry.isFile()) {
+              if (
+                lowerName.endsWith('.cfg') ||
+                lowerName.endsWith('.conf') ||
+                lowerName.endsWith('.gcode') ||
+                lowerName.endsWith('.klipper_bak')
+              ) {
+                try {
+                  fs.unlinkSync(fullPath);
+                  clearedCount++;
+                } catch {}
+              }
+            }
           }
+        } catch (err: any) {
+          console.warn('Error reading directory for clearing:', err);
         }
+      }
+
+      try {
+        removeKlipperFiles(rootPath, true);
         projectTreeProvider.refresh();
-        vscode.window.showInformationMessage('🧹 Workspace config files cleared!');
+        remoteTreeProvider.refresh();
+        vscode.window.showInformationMessage(
+          `🧹 Cleared ${clearedCount} Klipper config files and folders from workspace!`
+        );
       } catch (err: any) {
         vscode.window.showErrorMessage(`Failed to clear files: ${err.message}`);
       }
