@@ -4,6 +4,7 @@
   "description": "Smart IntelliSense, diagnostics, macro navigation, and analyzer for Klipper 3D printer configs",
   "version": "0.1.0",
   "publisher": "payamnoorzad",
+  "icon": "icon.png",
   "author": {
     "name": "Payam Noorzad",
     "url": "https://github.com/payamnoorzad"
