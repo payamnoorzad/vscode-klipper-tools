@@ -1,0 +1,7 @@
+.vscode/**
+src/**
+sample_workspace/**
+tsconfig.json
+esbuild.js
+.gitignore
+*.vsix
