@@ -1,0 +1,183 @@
+{
+  "name": "klipper-tools",
+  "displayName": "Klipper Tools (IntelliSense & Analyzer)",
+  "description": "Smart IntelliSense, diagnostics, macro navigation, and analyzer for Klipper 3D printer configs",
+  "version": "0.1.0",
+  "publisher": "payamnoorzad",
+  "author": {
+    "name": "Payam Noorzad",
+    "url": "https://github.com/payamnoorzad"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/payamnoorzad/vscode-klipper-tools.git"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Snippets"
+  ],
+  "keywords": [
+    "klipper",
+    "3d printing",
+    "voron",
+    "printer.cfg",
+    "gcode",
+    "jinja",
+    "intellisense"
+  ],
+  "activationEvents": [
+    "onLanguage:klipper-config",
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "klipper-sidebar",
+          "title": "Klipper Tools",
+          "icon": "$(circuit-board)"
+        }
+      ]
+    },
+    "views": {
+      "klipper-sidebar": [
+        {
+          "id": "klipperRemoteView",
+          "name": "Klipper Remote (Moonraker)"
+        },
+        {
+          "id": "klipperProjectView",
+          "name": "Klipper Project Explorer"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "klipper.connect",
+        "title": "Klipper: Connect to Printer",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "klipper.disconnect",
+        "title": "Klipper: Disconnect",
+        "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "klipper.restart",
+        "title": "Klipper: Firmware Restart (FIRMWARE_RESTART)",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "klipper.saveConfig",
+        "title": "Klipper: Save Config (SAVE_CONFIG)",
+        "icon": "$(save)"
+      },
+      {
+        "command": "klipper.homeAll",
+        "title": "Klipper: Home All Axes (G28)",
+        "icon": "$(home)"
+      },
+      {
+        "command": "klipper.emergencyStop",
+        "title": "Klipper: Emergency Stop (M112)",
+        "icon": "$(stop-circle)"
+      },
+      {
+        "command": "klipper.refreshProject",
+        "title": "Klipper: Refresh Project View",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "klipper.downloadAllConfigs",
+        "title": "Klipper: Sync All Configs to Workspace",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "klipper.clearLocalConfigs",
+        "title": "Klipper: Clear / Reset Workspace Configs",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "klipper.uploadCurrentFile",
+        "title": "Klipper: Upload Current File to Printer",
+        "icon": "$(cloud-upload)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "klipper.downloadAllConfigs",
+          "when": "view == klipperProjectView",
+          "group": "navigation"
+        },
+        {
+          "command": "klipper.clearLocalConfigs",
+          "when": "view == klipperProjectView",
+          "group": "navigation"
+        },
+        {
+          "command": "klipper.connect",
+          "when": "view == klipperRemoteView",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Klipper Tools",
+      "properties": {
+        "klipper.moonraker.url": {
+          "type": "string",
+          "default": "http://localhost:7125",
+          "description": "Moonraker API host URL (e.g. http://192.168.1.50:7125 or http://mainsail.local)"
+        },
+        "klipper.moonraker.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Optional API Key for Moonraker authentication"
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "klipper-config",
+        "aliases": [
+          "Klipper Config",
+          "klipper",
+          "cfg"
+        ],
+        "extensions": [
+          ".cfg"
+        ],
+        "filenames": [
+          "printer.cfg"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "klipper-config",
+        "scopeName": "source.klipper",
+        "path": "./syntaxes/klipper.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "compile": "tsc -p ./ --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.3"
+  }
+}

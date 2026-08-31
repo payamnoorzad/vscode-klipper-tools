@@ -1,0 +1,180 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Klipper Config",
+  "scopeName": "source.klipper",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#jinja"
+    },
+    {
+      "include": "#sections"
+    },
+    {
+      "include": "#gcode-commands"
+    },
+    {
+      "include": "#key-values"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.klipper",
+          "match": "#.*$"
+        },
+        {
+          "name": "comment.line.semicolon.gcode",
+          "match": ";.*$"
+        }
+      ]
+    },
+    "jinja": {
+      "patterns": [
+        {
+          "name": "comment.block.jinja",
+          "begin": "\\{#",
+          "end": "#\\}"
+        },
+        {
+          "name": "meta.statement.jinja",
+          "begin": "\\{%-?",
+          "end": "-?%\\}",
+          "patterns": [
+            {
+              "name": "keyword.control.jinja",
+              "match": "\\b(if|elif|else|endif|for|endfor|set|macro|endmacro|filter|endfilter|call|endcall)\\b"
+            },
+            {
+              "name": "keyword.operator.jinja",
+              "match": "\\b(in|not|and|or|is|default|float|int|string|lower|upper)\\b"
+            },
+            {
+              "name": "variable.other.jinja",
+              "match": "\\b(params|printer|action_respond_info|action_raise_error)\\b"
+            },
+            {
+              "name": "string.quoted.double.jinja",
+              "begin": "\"",
+              "end": "\""
+            },
+            {
+              "name": "string.quoted.single.jinja",
+              "begin": "'",
+              "end": "'"
+            },
+            {
+              "name": "constant.numeric.jinja",
+              "match": "\\b\\d+(\\.\\d+)?\\b"
+            }
+          ]
+        },
+        {
+          "name": "meta.expression.jinja",
+          "begin": "\\{\\{-?",
+          "end": "-?\\}\\}",
+          "patterns": [
+            {
+              "name": "variable.other.jinja",
+              "match": "\\b(params|printer|action_respond_info|action_raise_error|rawparams)\\b"
+            },
+            {
+              "name": "keyword.operator.jinja",
+              "match": "\\b(default|float|int|string|lower|upper)\\b"
+            },
+            {
+              "name": "string.quoted.double.jinja",
+              "begin": "\"",
+              "end": "\""
+            },
+            {
+              "name": "string.quoted.single.jinja",
+              "begin": "'",
+              "end": "'"
+            },
+            {
+              "name": "constant.numeric.jinja",
+              "match": "\\b\\d+(\\.\\d+)?\\b"
+            }
+          ]
+        }
+      ]
+    },
+    "sections": {
+      "patterns": [
+        {
+          "match": "^\\s*(\\[)([a-zA-Z0-9_]+)(?:\\s+([^\\]]+))?(\\])",
+          "captures": {
+            "1": { "name": "punctuation.definition.section.begin.klipper" },
+            "2": { "name": "entity.name.section.klipper support.class.klipper" },
+            "3": { "name": "entity.name.function.klipper variable.parameter.klipper" },
+            "4": { "name": "punctuation.definition.section.end.klipper" }
+          }
+        }
+      ]
+    },
+    "key-values": {
+      "patterns": [
+        {
+          "match": "^\\s*([a-zA-Z0-9_]+)\\s*([:=])\\s*(.*)$",
+          "captures": {
+            "1": { "name": "variable.other.property.klipper support.type.property-name.klipper" },
+            "2": { "name": "punctuation.separator.key-value.klipper" },
+            "3": { "patterns": [{ "include": "#value-patterns" }] }
+          }
+        }
+      ]
+    },
+    "value-patterns": {
+      "patterns": [
+        {
+          "include": "#jinja"
+        },
+        {
+          "name": "constant.language.boolean.klipper",
+          "match": "(?i)\\b(true|false|yes|no|on|off)\\b"
+        },
+        {
+          "name": "entity.name.type.pin.klipper",
+          "match": "[!^~]?(?:[a-zA-Z0-9_]+:)?(?:[a-zA-Z][a-zA-Z0-9_]*|gpio\\d+|PC?\\d+|PB?\\d+|PA?\\d+|PD?\\d+|PE?\\d+|PF?\\d+|PG?\\d+|PH?\\d+|PK?\\d+)"
+        },
+        {
+          "name": "constant.numeric.float.klipper",
+          "match": "[-+]?\\b\\d+\\.\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.klipper",
+          "match": "[-+]?\\b\\d+\\b"
+        },
+        {
+          "name": "string.quoted.double.klipper",
+          "begin": "\"",
+          "end": "\""
+        },
+        {
+          "name": "string.quoted.single.klipper",
+          "begin": "'",
+          "end": "'"
+        },
+        {
+          "include": "#comments"
+        }
+      ]
+    },
+    "gcode-commands": {
+      "patterns": [
+        {
+          "name": "keyword.control.gcode",
+          "match": "\\b[GM]\\d+\\b"
+        },
+        {
+          "name": "support.function.klipper.gcode",
+          "match": "\\b(SAVE_CONFIG|RESTART|FIRMWARE_RESTART|STATUS|BED_MESH_CALIBRATE|BED_MESH_PROFILE|QUAD_GANTRY_LEVEL|Z_TILT_ADJUST|PROBE|PROBE_CALIBRATE|PROBE_ACCURACY|TURN_OFF_HEATERS|M104|M109|M140|M190|M106|M107|G28|G0|G1|G90|G91|G92|SET_GCODE_VARIABLE|RESPOND|PAUSE|RESUME|CANCEL_PRINT)\\b"
+        }
+      ]
+    }
+  }
+}
